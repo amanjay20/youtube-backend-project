@@ -6,13 +6,12 @@ import { app } from "./app.js";
 configDotenv();
 
 app.on("error" , (error)=>{
-        console.log("ERR:", error)
+        console.log(" APP ERR:", error)
         
     })
 
 connectDB()
 .then( ()=>{
-
 
     app.listen(process.env.PORT || 8000 , ()=>{
         console.log(`server is running on PORT: ${process.env.PORT}`)
