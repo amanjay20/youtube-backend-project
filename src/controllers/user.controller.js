@@ -85,6 +85,8 @@ const generateAccessTokenAndRefreshtoken = async(userId) =>{
 const loginUser = asyncHandler(async(req,res)=>{
     const { email, username , password } = req.body
 
+    // if both true then it print(ERROR) and in this case neither email nor useranme given 
+    // if any one is given that means !1 means = 0(false) loop not print anything
     if ( !email && !username ) {
         throw new ApiError(400,"Email or username is required")
     }
@@ -127,8 +129,36 @@ const loginUser = asyncHandler(async(req,res)=>{
 
 })
 
+const logoutUser = asyncHandler( async(req,res)=>{
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset:{
+                refreshToken:1 // this removes the field from document
+            }
+        },
+        {
+            new: true
+        }
+    )
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+    return res 
+    .status(200)
+    .clearCookie("accessToken" , options)
+    .clearCookie("refreshToken" , options)
+    .json( new ApiResponse(200 , {} , "User Logged out"))
+})
 
 
 
 
-export {registerUser}
+
+
+export {
+    registerUser,
+    loginUser,
+    logoutUser
+}

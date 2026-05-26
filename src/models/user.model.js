@@ -52,17 +52,28 @@ const userSchema = new Schema(
 )
 
 userSchema.pre("save", async function(next){
+    // 1. Check if password changed
     if (!this.isModified("password")) return 
+    
+    // 2. If changed, hash it
     this.password = await bcrypt.hash(this.password,10)
+
+    
     
 })
 
+// Does the password entered during login match the hashed password stored in the database?”
 userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password,this.password)
+    // password :- plain text password entered by the user during login.
+    // this.password = hashed password stored in db , this refer to to current user document
 }
 
+//jwt.sign(payload == data goes inside the token, 
+//         secretKey, 
+//         options)
 userSchema.methods.generateAccessToken = function(){
-    jwt.sign(
+    return jwt.sign(
         {
             _id:this._id,
             email:this.email,
@@ -77,7 +88,7 @@ userSchema.methods.generateAccessToken = function(){
 }
 
 userSchema.methods.generateRefreshToken = function(){
-    jwt.sign(
+    return jwt.sign(
         {
             _id:this._id,
            
